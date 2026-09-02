@@ -149,21 +149,56 @@
     phoneInput.addEventListener('blur', validatePhone);
     formatSelect.addEventListener('change', validateFormat);
 
-    form.addEventListener('submit', function (e) {
-      e.preventDefault();
+form.addEventListener('submit', async function (e) {
+    e.preventDefault();
 
-      var isValid = validateName() & validatePhone() & validateFormat();
+    // Валидация
+    var isValid = validateName() && validatePhone() && validateFormat();
 
-      if (!isValid) {
+    if (!isValid) {
         var firstInvalid = form.querySelector('.is-invalid');
         if (firstInvalid) firstInvalid.focus();
         return;
-      }
+    }
 
-      form.hidden = true;
-      formSuccess.hidden = false;
-      formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    });
+    // Показываем состояние отправки
+    var submitBtn = form.querySelector('button[type="submit"]');
+    var originalText = submitBtn.innerText;
+    submitBtn.innerText = 'Отправка...';
+    submitBtn.disabled = true;
+
+    // Собираем данные формы
+    var formData = new FormData(form);
+
+    try {
+        // Отправляем на Formspree
+        var response = await fetch('https://formspree.io/f/xkjnrqwn', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            // Успешная отправка
+            form.hidden = true;
+            formSuccess.hidden = false;
+            formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            form.reset();
+        } else {
+            // Ошибка сервера
+            alert('Произошла ошибка при отправке. Пожалуйста, позвоните мне напрямую: +7-930-284-61-71');
+        }
+    } catch (error) {
+        // Сетевая ошибка
+        alert('Проблема с соединением. Пожалуйста, позвоните мне напрямую: +7-930-284-61-71');
+        console.error('Form submission error:', error);
+    } finally {
+        submitBtn.innerText = originalText;
+        submitBtn.disabled = false;
+    }
+});
   }
 
   /* ===== FAQ Accordion ===== */
