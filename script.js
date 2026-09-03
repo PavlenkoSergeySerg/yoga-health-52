@@ -269,3 +269,110 @@ form.addEventListener('submit', async function (e) {
     });
   }
 })();
+
+// === Расписание из Google Sheets ===
+(function() {
+    // ID вашей Google Таблицы
+    const SHEET_ID = '1KOcwj2PN8qPbTe9Pway_xLGHYf3JBJlJGvPKARLelBE';
+    
+    // URL для чтения данных (публичный доступ)
+    const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+    
+    const scheduleList = document.getElementById('schedule-list');
+    const scheduleLoading = document.getElementById('schedule-loading');
+    const scheduleError = document.getElementById('schedule-error');
+    
+    if (!scheduleList) return;
+    
+    // Функция для форматирования даты
+    function formatDate(dateStr) {
+        if (!dateStr) return '';
+        const date = new Date(dateStr);
+        const options = { day: 'numeric', month: 'long' };
+        return date.toLocaleDateString('ru-RU', options);
+    }
+    
+    // Функция для определения статуса
+    function getStatusClass(status) {
+        if (!status) return 'available';
+        if (status.includes('Нет мест')) return 'full';
+        if (status.includes('Осталось')) return 'limited';
+        return 'available';
+    }
+    
+    // Фильтр: только Пн, Ср, Пт
+    function isYogaDay(day) {
+        const yogaDays = ['Понедельник', 'Среда', 'Пятница'];
+        return yogaDays.includes(day);
+    }
+    
+    // Загрузка расписания
+    async function loadSchedule() {
+        try {
+            const response = await fetch(SHEET_URL);
+            const text = await response.text();
+            
+            // Google возвращает JSONP, нужно извлечь JSON
+            const jsonStr = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);/);
+            if (!jsonStr) throw new Error('Не удалось распарсить данные');
+            
+            const data = JSON.parse(jsonStr[1]);
+            const rows = data.table.rows;
+            
+            // Очищаем список
+            scheduleList.innerHTML = '';
+            
+            let hasItems = false;
+            
+            // Создаём элементы для каждой строки
+            rows.forEach(row => {
+                const date = row.c[0]?.v || '';
+                const day = row.c[1]?.v || '';
+                const time = row.c[2]?.v || '';
+                const total = row.c[3]?.v || 6;
+                const booked = row.c[4]?.v || 0;
+                const status = row.c[5]?.v || 'Есть места';
+                
+                // Пропускаем пустые строки и не-йога дни
+                if (!date || !isYogaDay(day)) return;
+                
+                // Форматируем дату
+                const formattedDate = formatDate(date);
+                
+                // Определяем класс статуса
+                const statusClass = getStatusClass(status);
+                
+                // Создаём элемент
+                const item = document.createElement('div');
+                item.className = 'schedule-item';
+                item.innerHTML = `
+                    <div class="schedule-date">${formattedDate}</div>
+                    <div class="schedule-day">${day}</div>
+                    <div class="schedule-time">${time}</div>
+                    <div class="schedule-status ${statusClass}">${status}</div>
+                `;
+                
+                scheduleList.appendChild(item);
+                hasItems = true;
+            });
+            
+            // Показываем список или сообщение
+            scheduleLoading.style.display = 'none';
+            
+            if (hasItems) {
+                scheduleList.style.display = 'grid';
+            } else {
+                scheduleError.textContent = 'Расписание пока не заполнено. Пожалуйста, свяжитесь напрямую: +7-930-284-61-71';
+                scheduleError.style.display = 'block';
+            }
+            
+        } catch (error) {
+            console.error('Ошибка загрузки расписания:', error);
+            scheduleLoading.style.display = 'none';
+            scheduleError.style.display = 'block';
+        }
+    }
+    
+    // Загружаем при загрузке страницы
+    loadSchedule();
+})();
