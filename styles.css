@@ -1049,3 +1049,12 @@ body.lightbox-open {
         margin-top: 0.5rem;
     }
 }
+
+/* Кнопки маршрута в блоке локации */
+.location__actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 2rem 0;
+}
