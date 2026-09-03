@@ -180,13 +180,17 @@ form.addEventListener('submit', async function (e) {
             }
         });
 
-        if (response.ok) {
-            // Успешная отправка
-            form.hidden = true;
-            formSuccess.hidden = false;
-            formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            form.reset();
-        } else {
+             if (response.ok) {
+         // Успешная отправка
+         // Цель в Метрику: заявка отправлена
+         if (typeof ym === 'function') {
+             ym(112268495, 'reachGoal', 'form_submit');
+         }
+         form.hidden = true;
+         formSuccess.hidden = false;
+         formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
+         form.reset();
+            } else {
             // Ошибка сервера
             alert('Произошла ошибка при отправке. Пожалуйста, позвоните мне напрямую: +7-930-284-61-71');
         }
@@ -385,3 +389,10 @@ form.addEventListener('submit', async function (e) {
     loadSchedule();
 })();
 
+
+// === Цель Метрики: клик по кнопкам маршрута и карты ===
+document.querySelectorAll('.location__actions a').forEach(function(link) {
+    link.addEventListener('click', function() {
+        if (typeof ym === 'function') ym(112268495, 'reachGoal', 'route_click');
+    });
+});
