@@ -274,105 +274,114 @@ form.addEventListener('submit', async function (e) {
 (function() {
     // ID вашей Google Таблицы
     const SHEET_ID = '1KOcwj2PN8qPbTe9Pway_xLGHYf3JBJlJGvPKARLelBE';
-    
-    // URL для чтения данных (публичный доступ)
-    const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
-    
+    const SHEET_URL = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?tqx=out:json';
+
     const scheduleList = document.getElementById('schedule-list');
     const scheduleLoading = document.getElementById('schedule-loading');
     const scheduleError = document.getElementById('schedule-error');
-    
+
     if (!scheduleList) return;
-    
-    // Функция для форматирования даты
-    function formatDate(dateStr) {
-        if (!dateStr) return '';
-        const date = new Date(dateStr);
-        const options = { day: 'numeric', month: 'long' };
-        return date.toLocaleDateString('ru-RU', options);
+
+    // Разбор даты Google: "Date(2026,8,7)" — месяц начинается с 0!
+    function parseGvizDate(value) {
+        if (!value) return null;
+        var str = String(value);
+        var m = str.match(/Date\((\d+),(\d+),(\d+)(?:,(\d+),(\d+),(\d+))?\)/);
+        if (m) {
+            return new Date(
+                parseInt(m[1], 10),
+                parseInt(m[2], 10),
+                parseInt(m[3], 10),
+                m[4] ? parseInt(m[4], 10) : 0,
+                m[5] ? parseInt(m[5], 10) : 0,
+                m[6] ? parseInt(m[6], 10) : 0
+            );
+        }
+        var d = new Date(str);
+        return isNaN(d.getTime()) ? null : d;
     }
-    
-    // Функция для определения статуса
+
+    // Разбор времени Google: "Date(1899,11,30,19,0,0)" -> "19:00"
+    function formatTime(value) {
+        if (!value) return '';
+        var str = String(value);
+        var m = str.match(/Date\(\d+,\d+,\d+,(\d+),(\d+)/);
+        if (m) {
+            var h = String(m[1]).padStart(2, '0');
+            var min = String(m[2]).padStart(2, '0');
+            return h + ':' + min;
+        }
+        return str; // если время уже текстом "19:00"
+    }
+
+    // Формат даты: "7 сентября"
+    function formatDate(value) {
+        var d = parseGvizDate(value);
+        if (!d) return '';
+        return d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+    }
+
     function getStatusClass(status) {
         if (!status) return 'available';
-        if (status.includes('Нет мест')) return 'full';
-        if (status.includes('Осталось')) return 'limited';
+        if (status.indexOf('Нет мест') !== -1) return 'full';
+        if (status.indexOf('Осталось') !== -1) return 'limited';
         return 'available';
     }
-    
-    // Фильтр: только Пн, Ср, Пт
+
+    // Показываем только дни занятий
     function isYogaDay(day) {
-        const yogaDays = ['Понедельник', 'Среда', 'Пятница'];
-        return yogaDays.includes(day);
+        return ['Понедельник', 'Среда', 'Пятница'].indexOf(day) !== -1;
     }
-    
-    // Загрузка расписания
+
     async function loadSchedule() {
         try {
-            const response = await fetch(SHEET_URL);
-            const text = await response.text();
-            
-            // Google возвращает JSONP, нужно извлечь JSON
-            const jsonStr = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);/);
+            var response = await fetch(SHEET_URL);
+            var text = await response.text();
+
+            var jsonStr = text.match(/google\.visualization\.Query\.setResponse\(([\s\S]*?)\);/);
             if (!jsonStr) throw new Error('Не удалось распарсить данные');
-            
-            const data = JSON.parse(jsonStr[1]);
-            const rows = data.table.rows;
-            
-            // Очищаем список
+
+            var data = JSON.parse(jsonStr[1]);
+            var rows = data.table.rows;
+
             scheduleList.innerHTML = '';
-            
-            let hasItems = false;
-            
-            // Создаём элементы для каждой строки
-            rows.forEach(row => {
-                const date = row.c[0]?.v || '';
-                const day = row.c[1]?.v || '';
-                const time = row.c[2]?.v || '';
-                const total = row.c[3]?.v || 6;
-                const booked = row.c[4]?.v || 0;
-                const status = row.c[5]?.v || 'Есть места';
-                
+            var hasItems = false;
+
+            rows.forEach(function(row) {
+                var dateRaw = row.c[0] && row.c[0].v;
+                var day = (row.c[1] && row.c[1].v) || '';
+                var timeRaw = row.c[2] && row.c[2].v;
+                var status = (row.c[5] && row.c[5].v) || 'Есть места';
+
                 // Пропускаем пустые строки и не-йога дни
-                if (!date || !isYogaDay(day)) return;
-                
-                // Форматируем дату
-                const formattedDate = formatDate(date);
-                
-                // Определяем класс статуса
-                const statusClass = getStatusClass(status);
-                
-                // Создаём элемент
-                const item = document.createElement('div');
+                if (!dateRaw || !isYogaDay(day)) return;
+
+                var item = document.createElement('div');
                 item.className = 'schedule-item';
-                item.innerHTML = `
-                    <div class="schedule-date">${formattedDate}</div>
-                    <div class="schedule-day">${day}</div>
-                    <div class="schedule-time">${time}</div>
-                    <div class="schedule-status ${statusClass}">${status}</div>
-                `;
-                
+                item.innerHTML =
+                    '<div class="schedule-date">' + formatDate(dateRaw) + '</div>' +
+                    '<div class="schedule-day">' + day + '</div>' +
+                    '<div class="schedule-time">' + formatTime(timeRaw) + '</div>' +
+                    '<div class="schedule-status ' + getStatusClass(status) + '">' + status + '</div>';
+
                 scheduleList.appendChild(item);
                 hasItems = true;
             });
-            
-            // Показываем список или сообщение
+
             scheduleLoading.style.display = 'none';
-            
+
             if (hasItems) {
                 scheduleList.style.display = 'grid';
             } else {
-                scheduleError.textContent = 'Расписание пока не заполнено. Пожалуйста, свяжитесь напрямую: +7-930-284-61-71';
                 scheduleError.style.display = 'block';
             }
-            
         } catch (error) {
             console.error('Ошибка загрузки расписания:', error);
             scheduleLoading.style.display = 'none';
             scheduleError.style.display = 'block';
         }
     }
-    
-    // Загружаем при загрузке страницы
+
     loadSchedule();
 })();
+
