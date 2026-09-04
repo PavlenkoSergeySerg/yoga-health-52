@@ -172,6 +172,14 @@
               "@type": "Answer",
               "text": "Да, рядом с центром «Умникум» есть бесплатная парковка."
             }
+          },
+          {
+            "@type": "Question",
+            "name": "У меня грыжа, протрузия или сколиоз — можно ли заниматься??",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Мои занятия — не медицинская услуга и не заменяют лечение. При диагнозах сначала проконсультируйтесь с врачом. Перед занятием обязательно расскажите мне о своём состоянии — я адаптирую нагрузку и исключу опасные движения. Практика осторожная и построена на анатомии, поэтому ученицы с такими диагнозами занимаются у меня регулярно."
+            }
           }
         ]
       }
@@ -260,7 +268,8 @@
     <section class="section section--beige" id="podhod" aria-labelledby="approach-title">
       <div class="container">
         <h2 id="approach-title">Не просто растяжка, а работа с телом на основе анатомии</h2>
-        <p class="lead">Я сочетаю классическую хатха-йогу и аштанга-йогу с элементами виньяс, йоготерапии и ЛФК. Иногда провожу занятия по миофасциальному массажу на ролле (90×15 см) — для глубокой работы с мышцами.</p>
+        <p class="lead">Я сочетаю классическую хатха-йогу и аштанга-йогу с элементами виньяс, йоготерапии, ЛФК и пилатеса. Иногда провожу занятия по миофасциальному массажу на ролле (90×15 см) — для глубокой работы с мышцами.</p>
+        <p class="philosophy">Важно: занятия не являются медицинской услугой и не заменяют консультацию врача. При хронических состояниях и диагнозах сначала — к врачу, потом — на коврик.</p>
         <div class="cards cards--3">
           <article class="card">
             <h3>Внимание к каждому</h3>
@@ -326,7 +335,7 @@
       <div class="container">
         <h2 id="formats-title">Форматы занятий</h2>
         <div class="cards cards--3">
-          <article class="card card--format">
+          <article class="card card--format" id="group">
             <div class="card__icon" aria-hidden="true">
               <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <circle cx="16" cy="16" r="5" stroke="currentColor" stroke-width="2"/>
@@ -345,7 +354,7 @@
             <p class="price-trial">Пробное: <strong>300 ₽</strong></p>
             <a href="#zapis" class="btn btn--primary btn--block">Записаться</a>
           </article>
-          <article class="card card--format">
+          <article class="card card--format" id="online">
             <div class="card__icon" aria-hidden="true">
               <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <rect x="6" y="10" width="36" height="24" rx="2" stroke="currentColor" stroke-width="2"/>
@@ -362,7 +371,7 @@
             <p class="price">800 ₽ <span class="price__unit">/ час</span></p>
             <a href="#zapis" class="btn btn--primary btn--block">Записаться</a>
           </article>
-          <article class="card card--format">
+          <article class="card card--format" id="home">
             <div class="card__icon" aria-hidden="true">
               <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path d="M8 20L24 8L40 20V38C40 39.1 39.1 40 38 40H10C8.9 40 8 39.1 8 38V20Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
@@ -520,6 +529,15 @@
             </button>
             <div class="accordion__panel" id="faq-6" role="region" aria-labelledby="faq-trigger-6" hidden>
               <p>Да, рядом с центром «Умникум» есть бесплатная парковка.</p>
+            </div>
+          </div>
+          <div class="accordion__item" role="listitem">
+            <button class="accordion__trigger" type="button" aria-expanded="false" aria-controls="faq-7" id="faq-trigger-7">
+              У меня грыжа, протрузия или сколиоз — можно ли заниматься?
+              <svg class="accordion__chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+            </button>
+            <div class="accordion__panel" id="faq-7" role="region" aria-labelledby="faq-trigger-7" hidden>
+              <p>Мои занятия — не медицинская услуга и не заменяют лечение. При диагнозах сначала проконсультируйтесь с врачом. Перед занятием обязательно расскажите мне о своём состоянии — я адаптирую нагрузку и исключу опасные движения. Практика осторожная и построена на анатомии, поэтому ученицы с такими диагнозами занимаются у меня регулярно.</p>
             </div>
           </div>
         </div>
