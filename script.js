@@ -332,9 +332,14 @@ form.addEventListener('submit', async function (e) {
         return 'available';
     }
 
-    // Показываем только дни занятий
-    function isYogaDay(day) {
-        return ['Понедельник', 'Среда', 'Пятница'].indexOf(day) !== -1;
+    // Экранирование внешних данных (Google Sheets) перед вставкой в DOM
+    function escapeHtml(str) {
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     async function loadSchedule() {
@@ -346,6 +351,9 @@ form.addEventListener('submit', async function (e) {
             if (!jsonStr) throw new Error('Не удалось распарсить данные');
 
             var data = JSON.parse(jsonStr[1]);
+            if (!data || !data.table || !data.table.rows) {
+                throw new Error('Пустой или неожиданный ответ таблицы');
+            }
             var rows = data.table.rows;
 
             scheduleList.innerHTML = '';
@@ -357,16 +365,16 @@ form.addEventListener('submit', async function (e) {
                 var timeRaw = row.c[2] && row.c[2].v;
                 var status = (row.c[5] && row.c[5].v) || 'Есть места';
 
-                // Пропускаем пустые строки и не-йога дни
-                if (!dateRaw || !isYogaDay(day)) return;
+                // Пропускаем пустые строки; контроль дат и дней — на владельце
+                if (!dateRaw) return;
 
                 var item = document.createElement('div');
                 item.className = 'schedule-item';
                 item.innerHTML =
-                    '<div class="schedule-date">' + formatDate(dateRaw) + '</div>' +
-                    '<div class="schedule-day">' + day + '</div>' +
-                    '<div class="schedule-time">' + formatTime(timeRaw) + '</div>' +
-                    '<div class="schedule-status ' + getStatusClass(status) + '">' + status + '</div>';
+                    '<div class="schedule-date">' + escapeHtml(formatDate(dateRaw)) + '</div>' +
+                    '<div class="schedule-day">' + escapeHtml(day) + '</div>' +
+                    '<div class="schedule-time">' + escapeHtml(formatTime(timeRaw)) + '</div>' +
+                    '<div class="schedule-status ' + getStatusClass(status) + '">' + escapeHtml(status) + '</div>';
 
                 scheduleList.appendChild(item);
                 hasItems = true;
