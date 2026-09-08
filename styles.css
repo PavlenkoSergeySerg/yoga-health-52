@@ -1058,3 +1058,22 @@ body.lightbox-open {
     justify-content: center;
     margin: 2rem 0;
 }
+/* Инлайн-сообщение об ошибке отправки */
+.form-success--error {
+    background-color: #f8d7da;
+    color: #721c24;
+}
+
+/* Кнопка «Открыть в Яндекс Картах»: обводка и текст в цвет основной кнопки */
+.location__actions .btn--outline {
+    border-color: var(--color-accent);
+    color: var(--color-accent);
+    background-color: transparent;
+}
+
+.location__actions .btn--outline:hover,
+.location__actions .btn--outline:focus-visible {
+    background-color: var(--color-accent-hover);
+    border-color: var(--color-accent-hover);
+    color: #fff;
+}

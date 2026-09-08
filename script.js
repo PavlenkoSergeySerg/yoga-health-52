@@ -95,6 +95,7 @@
   /* ===== Form validation ===== */
   var form = document.getElementById('contact-form');
   var formSuccess = document.getElementById('form-success');
+  var formError = document.getElementById('form-error');
   var nameInput = document.getElementById('name');
   var formatSelect = document.getElementById('format');
 
@@ -166,6 +167,7 @@ form.addEventListener('submit', async function (e) {
     var originalText = submitBtn.innerText;
     submitBtn.innerText = 'Отправка...';
     submitBtn.disabled = true;
+    if (formError) formError.hidden = true;
 
     // Собираем данные формы
     var formData = new FormData(form);
@@ -186,19 +188,22 @@ form.addEventListener('submit', async function (e) {
          if (typeof ym === 'function') {
              ym(112268495, 'reachGoal', 'form_submit');
          }
+         if (formError) formError.hidden = true;
          form.hidden = true;
          formSuccess.hidden = false;
          formSuccess.scrollIntoView({ behavior: 'smooth', block: 'center' });
          form.reset();
-            } else {
-            // Ошибка сервера
-            alert('Произошла ошибка при отправке. Пожалуйста, позвоните мне напрямую: +7-930-284-61-71');
-        }
-    } catch (error) {
-        // Сетевая ошибка
-        alert('Проблема с соединением. Пожалуйста, позвоните мне напрямую: +7-930-284-61-71');
+     } else {
+         // Ошибка сервера
+         formError.hidden = false;
+         formError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+     }
+        } catch (error) {
+          // Сетевая ошибка
+         formError.hidden = false;
+         formError.scrollIntoView({ behavior: 'smooth', block: 'center' });
         console.error('Form submission error:', error);
-    } finally {
+        } finally {
         submitBtn.innerText = originalText;
         submitBtn.disabled = false;
     }
@@ -404,3 +409,7 @@ document.querySelectorAll('.location__actions a').forEach(function(link) {
         if (typeof ym === 'function') ym(112268495, 'reachGoal', 'route_click');
     });
 });
+
+// === Текущий год в футере (автоподстановка) ===
+var yearEl = document.getElementById('year');
+if (yearEl) yearEl.textContent = new Date().getFullYear();
