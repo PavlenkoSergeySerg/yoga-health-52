@@ -1077,3 +1077,20 @@ body.lightbox-open {
     border-color: var(--color-accent-hover);
     color: #fff;
 }
+
+/* ===== Расписание: ровные колонки, центрирование как в таблице ===== */
+.schedule-date,
+.schedule-day,
+.schedule-time {
+    text-align: center;
+}
+
+.schedule-status {
+    justify-self: center;
+}
+
+@media (min-width: 769px) {
+    .schedule-item {
+        grid-template-columns: 1.2fr 1fr 0.7fr 1.4fr;
+    }
+}
