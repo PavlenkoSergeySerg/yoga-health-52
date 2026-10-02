@@ -1094,3 +1094,12 @@ body.lightbox-open {
         grid-template-columns: 1.2fr 1fr 0.7fr 1.4fr;
     }
 }
+
+/* Бейдж героя в одну строку на мобильных */
+@media (max-width: 480px) {
+    .hero__badge {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.75rem;
+        white-space: nowrap;
+    }
+}
